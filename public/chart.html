@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-time Voltage Chart</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      text-align: center;
+    }
+    /* Increased chart size */
+    #voltageChartContainer {
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 600px; /* Increased height */
+    }
+    #voltageChart {
+      width: 100%;
+      height: 100%; /* Ensure the canvas takes full height */
+    }
+  </style>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <h1>Real-time Voltage Chart</h1>
+  <div id="voltageChartContainer">
+    <canvas id="voltageChart"></canvas>
+  </div>
+
+  <!-- Socket.io script -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const voltageData = [];
+    const timeData = [];
+
+    // Set up the chart
+    const ctx = document.getElementById("voltageChart").getContext("2d");
+    const voltageChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: timeData,
+        datasets: [{
+          label: 'Voltage (V)',
+          data: voltageData,
+          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false, /* Ensure chart scales properly */
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Time'
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Voltage (V)'
+            },
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    // Connect to the Socket.io server and listen for MQTT data
+    const socket = io();
+    socket.on("mqtt_data", function(data) {
+      const parsedData = JSON.parse(data);
+      const voltage = parsedData.voltage;
+      const currentTime = new Date().toLocaleTimeString();
+
+      // Push new data to chart arrays
+      voltageData.push(voltage);
+      timeData.push(currentTime);
+
+      // Keep only the last 20 points for clarity
+      if (voltageData.length > 20) {
+        voltageData.shift();
+        timeData.shift();
+      }
+
+      // Update the chart
+      voltageChart.update();
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MQTT Data Viewer</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f5f5f5;
+      }
+      h1 {
+        text-align: center;
+        color: #333;
+      }
+      .data-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px; /* Space between cards */
+        padding: 10px;
+        margin-top: 20px;
+      }
+      .message-item {
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 10px;
+        width: 150px; /* Smaller card size */
+        margin: 5px;
+        transition: transform 0.3s ease;
+      }
+      .message-item:hover {
+        transform: translateY(-5px);
+      }
+      .message-header {
+        font-weight: bold;
+        font-size: 14px;
+        margin-bottom: 5px;
+        color: #404040;
+      }
+      .message-content {
+        font-size: 16px;
+        color: #666666;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Real-time MQTT Data</h1>
+    <div id="mqttData" class="data-container"></div>
+    <p>Waiting for data...</p>
+
+    <!-- Socket.io script -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      // Connect to the Socket.io server
+      const socket = io();
+
+      // Container for MQTT messages
+      const mqttDataContainer = document.getElementById("mqttData");
+
+      // Listen for MQTT data from the server
+      socket.on("mqtt_data", function (data) {
+        // Parse the received data (assuming it's a JSON object)
+        const parsedData = JSON.parse(data);
+        const voltage = parsedData.voltage;
+
+        // Create a new card (div) for the voltage value and append it to the container
+        const messageItem = document.createElement("div");
+        messageItem.className = "message-item";
+
+        // Add message content with proper formatting for voltage only
+        messageItem.innerHTML = `
+        <div class="message-header">Voltage</div>
+        <div class="message-content">${voltage} V</div>
+      `;
+
+        mqttDataContainer.appendChild(messageItem);
+      });
+    </script>
+  </body>
+</html>
