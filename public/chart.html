@@ -83,7 +83,21 @@
                   display: true,
                   text: "Voltage (V)",
                 },
-                beginAtZero: true,
+                beginAtZero: false,
+                min: -0.5,
+                max: 5,
+              },
+            },
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  title: function (tooltipItems) {
+                    return tooltipItems[0].label; // Return the time for the tooltip title
+                  },
+                  label: function (tooltipItem) {
+                    return `Voltage: ${tooltipItem.raw} V`; // Return the voltage value for the tooltip label
+                  },
+                },
               },
             },
           },
@@ -113,7 +127,6 @@
         const voltage3 = parsedData.ADC3.toFixed(2);
         const mqttDate = parsedData.DateTime;
 
-        const currentTime = new Date().toLocaleTimeString();
         const dateObject = new Date(mqttDate);
         const formattedTime = dateObject.toLocaleTimeString("en-US", {
           hour12: true,
@@ -136,9 +149,13 @@
         }
 
         // Update all charts
+        voltageChart0.data.labels = timeData; // Update labels with timeData
         voltageChart0.data.datasets[0].data = voltageData0;
+        voltageChart1.data.labels = timeData; // Update labels with timeData
         voltageChart1.data.datasets[0].data = voltageData1;
+        voltageChart2.data.labels = timeData; // Update labels with timeData
         voltageChart2.data.datasets[0].data = voltageData2;
+        voltageChart3.data.labels = timeData; // Update labels with timeData
         voltageChart3.data.datasets[0].data = voltageData3;
 
         voltageChart0.update();
