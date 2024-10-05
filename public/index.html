@@ -8,48 +8,100 @@
       body {
         font-family: Arial, sans-serif;
         margin: 20px;
-        background-color: #f5f5f5;
+        background-color: #f0f0f0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
       }
       h1 {
         text-align: center;
         color: #333;
+        font-size: 2.5rem;
+        margin-bottom: 30px;
       }
       .data-container {
         display: flex;
-        flex-wrap: wrap;
-        gap: 15px; /* Space between cards */
-        padding: 10px;
-        margin-top: 20px;
+        gap: 20px;
+        justify-content: center;
+        padding: 20px;
       }
-      .message-item {
+      .show-chart-btn{
         background-color: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        padding: 10px;
-        width: 150px; /* Smaller card size */
-        margin: 5px;
-        transition: transform 0.3s ease;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        width: 180px;
+        text-align: center;
+        text-decoration: none;
+        margin: 20px 0;
       }
-      .message-item:hover {
-        transform: translateY(-5px);
+      .voltage-block {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        width: 180px;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
       }
-      .message-header {
+      .voltage-header {
         font-weight: bold;
         font-size: 14px;
-        margin-bottom: 5px;
         color: #404040;
+        margin-bottom: 10px;
       }
-      .message-content {
-        font-size: 16px;
-        color: #666666;
-        text-align: center;
+      .voltage-value {
+        font-size: 1.8rem;
+        color: #333;
+      }
+      .date-time {
+        font-size: 0.9rem;
+        color: #777;
+        margin-top: 10px;
+      }
+
+      /* Pulse effect on update */
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+          /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); */
+        }
+        50% {
+          transform: scale(1.05);
+          /* box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); */
+        }
+        100% {
+          transform: scale(1);
+          /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); */
+        }
+      }
+
+      /* Class that triggers the pulse effect */
+      .update-effect {
+        animation: pulse 0.6s ease;
+      }
+
+      /* Style for the waiting message */
+      .waiting-message {
+        font-size: 1.2rem;
+        color: #666;
+        margin-bottom: 20px;
       }
     </style>
   </head>
   <body>
     <h1>Real-time MQTT Data</h1>
+
+    <!-- Waiting message -->
+    <p id="waitingMessage" class="waiting-message">Waiting for data...</p>
+
+    <!-- Container for data -->
     <div id="mqttData" class="data-container"></div>
-    <p>Waiting for data...</p>
+    
+    <!-- Button to navigate to chart -->
+    <a href="chart.html" class="show-chart-btn">View Chart</a>
 
     <!-- Socket.io script -->
     <script src="/socket.io/socket.io.js"></script>
@@ -59,24 +111,59 @@
 
       // Container for MQTT messages
       const mqttDataContainer = document.getElementById("mqttData");
+      const waitingMessage = document.getElementById("waitingMessage");
+
+      // Function to trigger the pulse effect on update
+      function triggerPulseEffect() {
+        mqttDataContainer.classList.add('update-effect');
+        // Remove the effect class after animation ends
+        setTimeout(() => {
+          mqttDataContainer.classList.remove('update-effect');
+        }, 600); // Same duration as the animation
+      }
 
       // Listen for MQTT data from the server
       socket.on("mqtt_data", function (data) {
         // Parse the received data (assuming it's a JSON object)
         const parsedData = JSON.parse(data);
-        const voltage = parsedData.voltage;
+        const voltage0 = parsedData.ADC0.toFixed(2);
+        const voltage1 = parsedData.ADC1.toFixed(2);
+        const voltage2 = parsedData.ADC2.toFixed(2);
+        const voltage3 = parsedData.ADC3.toFixed(2);
+        const mqttDate = parsedData.DateTime;
+        const dateObject = new Date(mqttDate);
+        const formattedTime = dateObject.toLocaleTimeString('en-US', { hour12: true });
+        const formattedDate = dateObject.toLocaleDateString('en-US');
 
-        // Create a new card (div) for the voltage value and append it to the container
-        const messageItem = document.createElement("div");
-        messageItem.className = "message-item";
+        // Hide the waiting message once data is received
+        waitingMessage.style.display = 'none';
 
-        // Add message content with proper formatting for voltage only
-        messageItem.innerHTML = `
-        <div class="message-header">Voltage</div>
-        <div class="message-content">${voltage} V</div>
-      `;
+        // Clear previous data
+        mqttDataContainer.innerHTML = "";
 
-        mqttDataContainer.appendChild(messageItem);
+        // Create blocks for each voltage value
+        const voltages = [
+          { label: "Channel 1", value: voltage0 },
+          { label: "Channel 2", value: voltage1 },
+          { label: "Channel 3", value: voltage2 },
+          { label: "Channel 4", value: voltage3 }
+        ];
+
+        voltages.forEach(voltage => {
+          const voltageBlock = document.createElement("div");
+          voltageBlock.className = "voltage-block";
+
+          voltageBlock.innerHTML = `
+            <div class="voltage-header">${voltage.label}</div>
+            <div class="voltage-value">${voltage.value} V</div>
+            <div class="date-time">${formattedDate} ${formattedTime}</div>
+          `;
+
+          mqttDataContainer.appendChild(voltageBlock);
+        });
+
+        // Trigger the pulse effect whenever new data arrives
+        triggerPulseEffect();
       });
     </script>
   </body>

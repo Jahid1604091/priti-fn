@@ -4,7 +4,7 @@ var mqttClient;
 
 // Change this to point to your MQTT broker or DNS name
 // const mqttHost = "test.mosquitto.org";
-const mqttHost = "test.mosquitto.org";
+const mqttHost = "64.226.123.239";
 const protocol = "mqtt";
 const port = "1883";
 let s_data = []
@@ -41,8 +41,8 @@ function connectToBroker() {
 
   // Received Message
   mqttClient.on("message", (topic, message, packet) => {
-    console.log(message.toString()); //message - buffer
-    s_data.push(message.toString())
+    // console.log(message.toString()); //message - buffer
+    // s_data.push(message.toString())
     // console.log(
     //   "Received Message: " + message.toString() + "\nOn topic: " + topic
     // );
@@ -57,6 +57,5 @@ function subscribeToTopic(topic) {
 }
 
 connectToBroker();
+// subscribeToTopic("sensor_data/energy_meter/demo_meter1");
 subscribeToTopic("sensor_data/DAQXE01/TICI");
-
-console.log(s_data)

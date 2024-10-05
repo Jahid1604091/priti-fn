@@ -9,12 +9,13 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 // MQTT Client configuration
-const mqttHost = "test.mosquitto.org";
+const mqttHost = "64.226.123.239";
 const protocol = "mqtt";
 const port = "1883";
 
 let mqttClient;
 const topic = "sensor_data/DAQXE01/TICI";
+// const topic = "sensor_data/energy_meter/demo_meter1";
 
 // WebSocket to send data to the client
 io.on("connection", (socket) => {
@@ -67,7 +68,7 @@ function connectToBroker() {
 
   mqttClient.on("message", (topic, message) => {
     const messageData = message.toString();
-    console.log(`Received Message: ${messageData} on topic: ${topic}`);
+    // console.log(`Received Message: ${messageData} on topic: ${topic}`);
 
     // Broadcast MQTT data to all connected WebSocket clients
     io.emit("mqtt_data", messageData);
