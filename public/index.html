@@ -175,6 +175,10 @@
         const voltage1 = parsedData.ADC1.toFixed(2);
         const voltage2 = parsedData.ADC2.toFixed(2);
         const voltage3 = parsedData.ADC3.toFixed(2);
+        const pressure = 2.5 * (voltage0 - 1);
+        const level = 25 * (voltage1 - 1);
+        const flow = (3000/4) * (voltage2 - 1);
+        const temp = (2000/4) * (voltage3 - 1);
         const mqttDate = parsedData.DateTime;
         const dateObject = new Date(mqttDate);
         const formattedTime = dateObject.toLocaleTimeString('en-US', { hour12: true });
@@ -188,10 +192,10 @@
 
         // Create blocks for each voltage value
         const voltages = [
-          { label: "Channel 1", value: voltage0 },
-          { label: "Channel 2", value: voltage1 },
-          { label: "Channel 3", value: voltage2 },
-          { label: "Channel 4", value: voltage3 }
+          { label: "Pressure", value: pressure, unit:"Bar" },
+          { label: "Channel 2", value: level ,unit:"%" },
+          { label: "Channel 3", value: flow,unit:"Ltr/hr"  },
+          { label: "Channel 4", value: temp,unit:"&deg;C"  }
         ];
 
         voltages.forEach(voltage => {
@@ -200,7 +204,7 @@
 
           voltageBlock.innerHTML = `
             <div class="voltage-header">${voltage.label}</div>
-            <div class="voltage-value">${voltage.value} V</div>
+            <div class="voltage-value">${voltage.value} ${voltage.unit}</div>
             <div class="date-time">${formattedDate} ${formattedTime}</div>
           `;
 

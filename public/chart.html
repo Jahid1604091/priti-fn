@@ -98,8 +98,6 @@
                   text: "Voltage (V)",
                 },
                 beginAtZero: false,
-                min: -0.5,
-                max: 5,
               },
             },
             plugins: {
@@ -120,16 +118,16 @@
 
       // Set up the four charts
       const ctx0 = document.getElementById("voltageChart0").getContext("2d");
-      const voltageChart0 = setupChart(ctx0, "Channel 1");
+      const voltageChart0 = setupChart(ctx0, "Pressure");
 
       const ctx1 = document.getElementById("voltageChart1").getContext("2d");
-      const voltageChart1 = setupChart(ctx1, "Channel 2");
+      const voltageChart1 = setupChart(ctx1, "Level");
 
       const ctx2 = document.getElementById("voltageChart2").getContext("2d");
-      const voltageChart2 = setupChart(ctx2, "Channel 3");
+      const voltageChart2 = setupChart(ctx2, "FLow");
 
       const ctx3 = document.getElementById("voltageChart3").getContext("2d");
-      const voltageChart3 = setupChart(ctx3, "Channel 4");
+      const voltageChart3 = setupChart(ctx3, "Temperature");
 
       // Connect to the Socket.io server and listen for MQTT data
       const socket = io();
@@ -145,12 +143,15 @@
         const formattedTime = dateObject.toLocaleTimeString("en-US", {
           hour12: true,
         });
-
+        const pressure = 2.5 * (voltage0 - 1);
+        const level = 25 * (voltage1 - 1);
+        const flow = (3000/4) * (voltage2 - 1);
+        const temp = (2000/4) * (voltage3 - 1);
         // Push new data to chart arrays
-        voltageData0.push(voltage0);
-        voltageData1.push(voltage1);
-        voltageData2.push(voltage2);
-        voltageData3.push(voltage3);
+        voltageData0.push(pressure);
+        voltageData1.push(level);
+        voltageData2.push(flow);
+        voltageData3.push(temp);
         timeData.push(formattedTime);
 
         // Keep only the last 20 points for clarity
