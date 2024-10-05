@@ -5,101 +5,131 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MQTT Data Viewer</title>
     <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
       body {
         font-family: Arial, sans-serif;
-        margin: 20px;
-        background-color: #f0f0f0;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 100vh;
+        height: 100%;
+        box-sizing: border-box;
+        padding: 20px;
       }
+
       h1 {
         text-align: center;
         color: #333;
-        font-size: 2.5rem;
-        margin-bottom: 30px;
+        font-size: 2rem;
+        margin-bottom: 20px;
       }
+
       .data-container {
         display: flex;
         gap: 20px;
         justify-content: center;
         padding: 20px;
+        max-width: 100%;
+        flex-wrap: wrap;
+        overflow: hidden;
       }
-      .show-chart-btn{
+
+      .show-chart-btn {
         background-color: #ffffff;
-        padding: 20px;
+        padding: 10px 20px;
         border-radius: 10px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        width: 180px;
         text-align: center;
         text-decoration: none;
         margin: 20px 0;
+        transition: background-color 0.3s ease;
       }
+
+      .show-chart-btn:hover {
+        background-color: #f0f0f0;
+      }
+
       .voltage-block {
         background-color: #ffffff;
-        padding: 20px;
+        padding: 10px 20px;
         border-radius: 10px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        width: 180px;
+        width: 150px;
         text-align: center;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
       }
+
       .voltage-header {
         font-weight: bold;
         font-size: 14px;
         color: #404040;
         margin-bottom: 10px;
       }
+
       .voltage-value {
         font-size: 1.8rem;
         color: #333;
       }
+
       .date-time {
         font-size: 0.9rem;
         color: #777;
         margin-top: 10px;
       }
 
-      /* Pulse effect on update */
       @keyframes pulse {
         0% {
           transform: scale(1);
-          /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); */
         }
         50% {
           transform: scale(1.05);
-          /* box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); */
         }
         100% {
           transform: scale(1);
-          /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); */
         }
       }
 
-      /* Class that triggers the pulse effect */
       .update-effect {
         animation: pulse 0.6s ease;
       }
 
-      /* Style for the waiting message */
       .waiting-message {
         font-size: 1.2rem;
         color: #666;
         margin-bottom: 20px;
+        text-align: center;
+      }
+
+      /* Ensure the content fits the screen */
+      @media (max-height: 600px) {
+        .data-container {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .voltage-block {
+          width: 100%;
+          max-width: 300px;
+        }
       }
     </style>
   </head>
   <body>
-    <h1>Real-time MQTT Data</h1>
+    <img src="/images/tici.png" alt="" width="150" height="150" />
+    <h1>Process Monitoring Demo</h1>
 
     <!-- Waiting message -->
     <p id="waitingMessage" class="waiting-message">Waiting for data...</p>
 
     <!-- Container for data -->
     <div id="mqttData" class="data-container"></div>
-    
+
     <!-- Button to navigate to chart -->
     <a href="chart.html" class="show-chart-btn">View Chart</a>
 
@@ -115,10 +145,10 @@
 
       // Function to trigger the pulse effect on update
       function triggerPulseEffect() {
-        mqttDataContainer.classList.add('update-effect');
+        mqttDataContainer.classList.add("update-effect");
         // Remove the effect class after animation ends
         setTimeout(() => {
-          mqttDataContainer.classList.remove('update-effect');
+          mqttDataContainer.classList.remove("update-effect");
         }, 600); // Same duration as the animation
       }
 
@@ -132,11 +162,13 @@
         const voltage3 = parsedData.ADC3.toFixed(2);
         const mqttDate = parsedData.DateTime;
         const dateObject = new Date(mqttDate);
-        const formattedTime = dateObject.toLocaleTimeString('en-US', { hour12: true });
-        const formattedDate = dateObject.toLocaleDateString('en-US');
+        const formattedTime = dateObject.toLocaleTimeString("en-US", {
+          hour12: true,
+        });
+        const formattedDate = dateObject.toLocaleDateString("en-US");
 
         // Hide the waiting message once data is received
-        waitingMessage.style.display = 'none';
+        waitingMessage.style.display = "none";
 
         // Clear previous data
         mqttDataContainer.innerHTML = "";
@@ -146,10 +178,10 @@
           { label: "Channel 1", value: voltage0 },
           { label: "Channel 2", value: voltage1 },
           { label: "Channel 3", value: voltage2 },
-          { label: "Channel 4", value: voltage3 }
+          { label: "Channel 4", value: voltage3 },
         ];
 
-        voltages.forEach(voltage => {
+        voltages.forEach((voltage) => {
           const voltageBlock = document.createElement("div");
           voltageBlock.className = "voltage-block";
 
