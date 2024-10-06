@@ -12,7 +12,17 @@
         position: relative;
         min-height: 100vh; /* To ensure footer is positioned correctly */
       }
+      header {
+        margin-bottom: 20px;
+        width: 100%;
+        display: flex;
+        justify-content: start;
+      }
 
+      header img {
+        max-width: 150px;
+        height: auto;
+      }
       /* Increased chart size */
       .chartContainer {
         max-width: 1200px;
@@ -36,25 +46,27 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
-    <h1>Real-time Voltage Charts</h1>
-
-    <div id="chartContainer0" class="chartContainer">
-      <canvas id="voltageChart0" class="chart"></canvas>
-    </div>
-    <div id="chartContainer1" class="chartContainer">
-      <canvas id="voltageChart1" class="chart"></canvas>
-    </div>
-    <div id="chartContainer2" class="chartContainer">
-      <canvas id="voltageChart2" class="chart"></canvas>
-    </div>
-    <div id="chartContainer3" class="chartContainer">
-      <canvas id="voltageChart3" class="chart"></canvas>
+    <header>
+      <img src="/images/fn.png" alt="FactoryNext" />
+    </header>
+    <div class="container">
+      <h1>Real-time Voltage Charts</h1>
+      <div id="chartContainer0" class="chartContainer">
+        <canvas id="voltageChart0" class="chart"></canvas>
+      </div>
+      <div id="chartContainer1" class="chartContainer">
+        <canvas id="voltageChart1" class="chart"></canvas>
+      </div>
+      <div id="chartContainer2" class="chartContainer">
+        <canvas id="voltageChart2" class="chart"></canvas>
+      </div>
+      <div id="chartContainer3" class="chartContainer">
+        <canvas id="voltageChart3" class="chart"></canvas>
+      </div>
     </div>
 
     <!-- Footer with copyright -->
-    <footer>
-      &copy; 2024 Factory Next. All rights reserved.
-    </footer>
+    <footer>&copy; 2024 Factory Next. All rights reserved.</footer>
 
     <!-- Socket.io script -->
     <script src="/socket.io/socket.io.js"></script>
@@ -66,7 +78,7 @@
       const timeData = [];
 
       // Create a chart setup function
-      function setupChart(ctx, label) {
+      function setupChart(ctx, label, unit, min, max) {
         return new Chart(ctx, {
           type: "line",
           data: {
@@ -95,9 +107,11 @@
               y: {
                 title: {
                   display: true,
-                  text: "Voltage (V)",
+                  text: `${unit}`,
                 },
-                beginAtZero: false,
+                // beginAtZero: true,
+                min,
+                max,
               },
             },
             plugins: {
@@ -107,7 +121,7 @@
                     return tooltipItems[0].label; // Return the time for the tooltip title
                   },
                   label: function (tooltipItem) {
-                    return `Voltage: ${tooltipItem.raw} V`; // Return the voltage value for the tooltip label
+                    return `${label}: ${tooltipItem.raw} ${unit}`; // Return the voltage value for the tooltip label
                   },
                 },
               },
@@ -118,16 +132,16 @@
 
       // Set up the four charts
       const ctx0 = document.getElementById("voltageChart0").getContext("2d");
-      const voltageChart0 = setupChart(ctx0, "Pressure");
+      const voltageChart0 = setupChart(ctx0, "Pressure", "Bar", 0, 10);
 
       const ctx1 = document.getElementById("voltageChart1").getContext("2d");
-      const voltageChart1 = setupChart(ctx1, "Level");
+      const voltageChart1 = setupChart(ctx1, "Level", "%", 0, 100);
 
       const ctx2 = document.getElementById("voltageChart2").getContext("2d");
-      const voltageChart2 = setupChart(ctx2, "FLow");
+      const voltageChart2 = setupChart(ctx2, "FLow", "Ltr/hr", 0, 3000);
 
       const ctx3 = document.getElementById("voltageChart3").getContext("2d");
-      const voltageChart3 = setupChart(ctx3, "Temperature");
+      const voltageChart3 = setupChart(ctx3, "Temperature", "Celcius", 0, 200);
 
       // Connect to the Socket.io server and listen for MQTT data
       const socket = io();
@@ -145,8 +159,10 @@
         });
         const pressure = 2.5 * (voltage0 - 1);
         const level = 25 * (voltage1 - 1);
-        const flow = (3000/4) * (voltage2 - 1);
-        const temp = (2000/4) * (voltage3 - 1);
+        const flow = (3000 / 4) * (voltage2 - 1);
+        const temp = (200 / 4) * (voltage3 - 1);
+
+        console.log(pressure,level,flow,temp)
         // Push new data to chart arrays
         voltageData0.push(pressure);
         voltageData1.push(level);
