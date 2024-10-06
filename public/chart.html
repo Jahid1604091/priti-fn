@@ -147,22 +147,21 @@
       const socket = io();
       socket.on("mqtt_data", function (data) {
         const parsedData = JSON.parse(data);
-        const voltage0 = parsedData.ADC0.toFixed(2);
-        const voltage1 = parsedData.ADC1.toFixed(2);
-        const voltage2 = parsedData.ADC2.toFixed(2);
-        const voltage3 = parsedData.ADC3.toFixed(2);
+        const voltage0 = parsedData.ADC0;
+        const voltage1 = parsedData.ADC1;
+        const voltage2 = parsedData.ADC2;
+        const voltage3 = parsedData.ADC3;
         const mqttDate = parsedData.DateTime;
 
         const dateObject = new Date(mqttDate);
         const formattedTime = dateObject.toLocaleTimeString("en-US", {
           hour12: true,
         });
-        const pressure = 2.5 * (voltage0 - 1);
-        const level = 25 * (voltage1 - 1);
-        const flow = (3000 / 4) * (voltage2 - 1);
-        const temp = (200 / 4) * (voltage3 - 1);
+        const pressure = 2.5 * (voltage0 - 1).toFixed(2);
+        const level = 25 * (voltage1 - 1).toFixed(2);
+        const flow = (3000 / 4) * (voltage2 - 1).toFixed(2);
+        const temp = (200 / 4) * (voltage3 - 1).toFixed(2);
 
-        console.log(pressure,level,flow,temp)
         // Push new data to chart arrays
         voltageData0.push(pressure);
         voltageData1.push(level);
