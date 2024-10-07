@@ -138,10 +138,10 @@
       const voltageChart1 = setupChart(ctx1, "Level", "%", 0, 100);
 
       const ctx2 = document.getElementById("voltageChart2").getContext("2d");
-      const voltageChart2 = setupChart(ctx2, "FLow", "Ltr/hr", 0, 3000);
+      const voltageChart2 = setupChart(ctx2, "Flow", "Ltr/hr", 0, 3000);
 
-      const ctx3 = document.getElementById("voltageChart3").getContext("2d");
-      const voltageChart3 = setupChart(ctx3, "Temperature", "Celcius", 0, 200);
+      // const ctx3 = document.getElementById("voltageChart3").getContext("2d");
+      // const voltageChart3 = setupChart(ctx3, "Temperature", "Celcius", 0, 200);
 
       // Connect to the Socket.io server and listen for MQTT data
       const socket = io();
@@ -165,8 +165,9 @@
         // Push new data to chart arrays
         voltageData0.push(pressure);
         voltageData1.push(level);
-        voltageData2.push(flow);
-        voltageData3.push(temp);
+        voltageData2.push(temp);
+        // voltageData2.push(flow);
+        // voltageData3.push(temp);
         timeData.push(formattedTime);
 
         // Keep only the last 20 points for clarity
@@ -174,7 +175,7 @@
           voltageData0.shift();
           voltageData1.shift();
           voltageData2.shift();
-          voltageData3.shift();
+          // voltageData3.shift();
           timeData.shift();
         }
 
@@ -185,13 +186,13 @@
         voltageChart1.data.datasets[0].data = voltageData1;
         voltageChart2.data.labels = timeData; // Update labels with timeData
         voltageChart2.data.datasets[0].data = voltageData2;
-        voltageChart3.data.labels = timeData; // Update labels with timeData
-        voltageChart3.data.datasets[0].data = voltageData3;
+        // voltageChart3.data.labels = timeData; // Update labels with timeData
+        // voltageChart3.data.datasets[0].data = voltageData3;
 
         voltageChart0.update();
         voltageChart1.update();
         voltageChart2.update();
-        voltageChart3.update();
+        // voltageChart3.update();
       });
     </script>
   </body>

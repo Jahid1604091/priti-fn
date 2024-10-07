@@ -198,7 +198,7 @@
         const pressure = 2.5 * (voltage0 - 1).toFixed(2);
         const level = 25 * (voltage1 - 1).toFixed(2);
         const flow = (3000 / 4) * (voltage2 - 1).toFixed(2);
-        const temp = (2000 / 4) * (voltage3 - 1).toFixed(2);
+        const temp = (200 / 4) * (voltage3 - 1).toFixed(2);
         const mqttDate = parsedData.DateTime;
         const dateObject = new Date(mqttDate);
         const formattedTime = dateObject.toLocaleTimeString("en-US", {
